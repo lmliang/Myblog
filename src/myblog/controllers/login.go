@@ -10,7 +10,17 @@ type LoginController struct {
 }
 
 func (this *LoginController) Get() {
+	isExit := this.GetString("exit") == "true"
+	if isExit {
+		this.Ctx.SetCookie("username", "", -1, "/")
+		this.Ctx.SetCookie("password", "", -1, "/")
+
+		this.Redirect("/", 301)
+		return
+	}
+
 	this.TplNames = "login.html"
+	return
 }
 
 func (this *LoginController) Post() {
