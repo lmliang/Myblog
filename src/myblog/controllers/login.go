@@ -10,7 +10,7 @@ type LoginController struct {
 }
 
 func (this *LoginController) Get() {
-	isExit := this.GetString("exit") == "true"
+	isExit := this.Input().Get("exit") == "true"
 	if isExit {
 		this.Ctx.SetCookie("username", "", -1, "/")
 		this.Ctx.SetCookie("password", "", -1, "/")
@@ -20,7 +20,6 @@ func (this *LoginController) Get() {
 	}
 
 	this.TplNames = "login.html"
-	return
 }
 
 func (this *LoginController) Post() {
@@ -32,13 +31,14 @@ func (this *LoginController) Post() {
 		beego.AppConfig.String("password") == password {
 		maxAge := 0
 		if autologin {
-			maxAge = 1<<31 - 1
+			maxAge = 3600
 		}
 
 		this.Ctx.SetCookie("username", username, maxAge, "/")
 		this.Ctx.SetCookie("password", password, maxAge, "/")
 
 		this.Redirect("/", 301)
+		return
 	} else {
 		this.Redirect("/login", 301)
 	}
