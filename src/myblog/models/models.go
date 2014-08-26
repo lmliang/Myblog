@@ -55,7 +55,7 @@ func RegisterDB() {
 
 func AddCategory(name string) error {
 	o := orm.NewOrm()
-	cate := &Category{Title: name, Created: time.Now(), TopicTime: time.Now()}
+	cate := &Category{Title: name}
 
 	qs := o.QueryTable("category")
 	err := qs.Filter("title", name).One(cate)
@@ -95,4 +95,48 @@ func DeleteCategory(id string) error {
 
 	_, err = o.Delete(cate)
 	return err
+}
+
+func AddTopic(title, content string) error {
+	o := orm.NewOrm()
+
+	topic := &Topic{Title: title, Content: content, Created: time.Now(), Updated: time.Now()}
+
+	_, err := o.Insert(topic)
+	return err
+}
+
+func GetAllTopics(isDesc bool) ([]*Topic, error) {
+	topics := make([]*Topic, 0)
+
+	o := orm.NewOrm()
+
+	qs := o.QueryTable("topic")
+
+	var err error
+	if isDesc {
+		_, err = qs.OrderBy("-id").All(&topics)
+	} else {
+		_, err = qs.All(&topics)
+	}
+
+	return topics, err
+}
+
+func GetTopic(id string) (*Topic, error) {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	t := new(Topic)
+
+	o := orm.NewOrm()
+	qs := o.QueryTable("topic")
+	err = qs.Filter("id", tid).One(t)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, err
 }

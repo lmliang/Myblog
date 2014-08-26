@@ -45,6 +45,7 @@ func (this *CategoryController) Get() {
 	this.TplNames = "category.html"
 	this.Data["IsCategory"] = true
 	this.Data["Categorys"], err = models.GetAllCategorys()
+	this.Data["IsLogin"] = checkAccount(this.Ctx)
 
 	if err != nil {
 		beego.Error(err)

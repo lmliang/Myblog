@@ -1,0 +1,15 @@
+{{template "header"}}
+		<title>{{.Topic.Title}} - 我的博客</title>
+	</head>
+	<body>
+		<div class="navbar navbar-default navbar-fixed-top">
+			<div class="container">
+				{{template "navbar" .}}
+			</div>
+		</div>
+		<div class="page-header container">
+			<h1>{{.Topic.Title}}</h1>
+			{{.Topic.Content}}
+		</div>
+	</body>
+</html>
