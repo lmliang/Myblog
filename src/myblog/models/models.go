@@ -29,6 +29,7 @@ type Category struct {
 // 文章
 type Topic struct {
 	Id              int64
+	Category        string
 	UserId          int64     // 作者
 	Title           string    // 标题
 	Content         string    `orm:"size(5000)"` // 内容
@@ -42,13 +43,22 @@ type Topic struct {
 	ReplyLastUserId int64
 }
 
+// 评论
+type Comment struct {
+	Id      int64
+	Tid     int64
+	Name    string
+	Content string    `orm:size(1000)`
+	Created time.Time `orm:index`
+}
+
 func RegisterDB() {
 	if !com.IsExist(_DB_NAME) {
 		os.MkdirAll(path.Dir(_DB_NAME), os.ModePerm)
 		os.Create(_DB_NAME)
 	}
 
-	orm.RegisterModel(new(Category), new(Topic))
+	orm.RegisterModel(new(Category), new(Topic), new(Comment))
 	orm.RegisterDriver(_SQLITE3_DRIVER, orm.DR_Sqlite)
 	orm.RegisterDataBase("default", _SQLITE3_DRIVER, _DB_NAME, 10)
 }
@@ -97,10 +107,10 @@ func DeleteCategory(id string) error {
 	return err
 }
 
-func AddTopic(title, content string) error {
+func AddTopic(title, content, category string) error {
 	o := orm.NewOrm()
 
-	topic := &Topic{Title: title, Content: content, Created: time.Now(), Updated: time.Now()}
+	topic := &Topic{Title: title, Content: content, Category: category, Created: time.Now(), Updated: time.Now()}
 
 	_, err := o.Insert(topic)
 	return err
@@ -138,5 +148,73 @@ func GetTopic(id string) (*Topic, error) {
 		return nil, err
 	}
 
+	t.Views++
+	_, err = o.Update(t)
+
 	return t, err
+}
+
+func ModifyTopic(id, title, content, category string) error {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	t := &Topic{Id: tid}
+
+	o := orm.NewOrm()
+	if o.Read(t) == nil {
+		t.Title = title
+		t.Content = content
+		t.Category = category
+		t.Updated = time.Now()
+		_, err = o.Update(t)
+	}
+
+	return err
+}
+
+func DeleteTopic(id string) error {
+	tid, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	o := orm.NewOrm()
+
+	topic := &Topic{Id: tid}
+
+	_, err = o.Delete(topic)
+
+	return err
+}
+
+func AddReply(tid, nickname, content string) error {
+	id, err := strconv.ParseInt(tid, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	reply := &Comment{Tid: id, Name: nickname, Content: content, Created: time.Now()}
+
+	o := orm.NewOrm()
+	_, err = o.Insert(reply)
+	return err
+}
+
+func GetTopicComments(tid string) ([]*Comment, error) {
+	id, err := strconv.ParseInt(tid, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	replys := make([]*Comment, 0)
+
+	o := orm.NewOrm()
+
+	qs := o.QueryTable("comment")
+
+	_, err = qs.Filter("tid", id).All(&replys)
+
+	return replys, err
 }

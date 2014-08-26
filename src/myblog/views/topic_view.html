@@ -8,8 +8,27 @@
 			</div>
 		</div>
 		<div class="page-header container">
-			<h1>{{.Topic.Title}}</h1>
+			<h1>{{.Topic.Title}}<a href="/topic/modify?tid={{.Tid}}" class="btn btn-default">修改文章</a></h1>
 			{{.Topic.Content}}
+		</div>
+		<div class="container">
+			{{range .Replys}}
+			<h3>{{.Name}} <small>{{.Created}}</small></h3>
+			{{.Content}}
+			{{end}}
+			<h3>本文回复</h3>
+			<form action="/reply/add" method="post">
+				<input type="hidden" name="tid" value="{{.Topic.Id}}">
+				<div class="form-group">
+					<label>显示昵称：</label>
+					<input type="text" class="form-control" name="nickname">
+				</div>
+				<div class="form-group">
+					<label>内容：</label>
+					<textarea name="content" id="content" cols="30" rows="10" class="form-control"></textarea>
+				</div>
+				<button class="btn btn-default">提交</button>
+			</form>
 		</div>
 	</body>
 </html>

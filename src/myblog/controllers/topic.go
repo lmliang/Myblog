@@ -22,10 +22,18 @@ func (this *TopicController) Post() {
 		return
 	}
 
+	tid := this.Input().Get("tid")
 	title := this.Input().Get("title")
 	content := this.Input().Get("content")
+	category := this.Input().Get("category")
 
-	err := models.AddTopic(title, content)
+	var err error
+	if len(tid) == 0 {
+		err = models.AddTopic(title, content, category)
+	} else {
+		err = models.ModifyTopic(tid, title, content, category)
+	}
+
 	if err != nil {
 		beego.Error(err)
 	}
@@ -38,7 +46,54 @@ func (this *TopicController) Add() {
 }
 
 func (this *TopicController) View() {
-	id := this.Input().Get("id")
-	this.Data["Topic"], _ = models.GetTopic(id)
+	id := this.Ctx.Input.Params["0"]
+	topic, err := models.GetTopic(id)
+	if err != nil {
+		beego.Error(err)
+		this.Redirect("/", 302)
+		return
+	}
+
+	replys, err := models.GetTopicComments(id)
+	if err != nil {
+		beego.Error(err)
+		this.Redirect("/", 302)
+		return
+	}
+
+	this.Data["Tid"] = id
+	this.Data["Topic"] = topic
+	this.Data["Replys"] = replys
+	this.Data["IsLogin"] = checkAccount(this.Ctx)
 	this.TplNames = "topic_view.html"
+}
+
+func (this *TopicController) Modify() {
+	id := this.Input().Get("tid")
+	topic, err := models.GetTopic(id)
+	if err != nil {
+		beego.Error(err)
+		this.Redirect("/", 302)
+		return
+	}
+
+	this.Data["Tid"] = id
+	this.Data["Topic"] = topic
+	this.TplNames = "topic_modify.html"
+}
+
+func (this *TopicController) Delete() {
+	if !checkAccount(this.Ctx) {
+		this.Redirect("/login", 301)
+		return
+	}
+
+	tid := this.Ctx.Input.Params["0"]
+
+	err := models.DeleteTopic(tid)
+	if err != nil {
+		beego.Error(err)
+	}
+
+	this.Redirect("/", 302)
 }

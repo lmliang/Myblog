@@ -16,9 +16,11 @@
 						<th>#</th>
 						<th>文章名称</th>
 						<th>最后更新时间</th>
-						<th>浏览</th>
+						<th>浏览数</th>
 						<th>回复数</th>
-						<th>操作</th>
+						<th>浏览文章</th>
+						<th>删除文章</th>
+
 					</tr>
 				</thead>
 				<tbody>
@@ -29,7 +31,8 @@
 						<th>{{.Updated}}</th>
 						<th>{{.Views}}</th>
 						<th>{{.ReplyCount}}</th>
-						<th><a href="/topic/view?id={{.Id}}">浏览</a></th>
+						<th><a href="/topic/view/{{.Id}}">浏览</a></th>
+						<th><a href="/topic/delete/{{.Id}}">删除</a></th>
 					</tr>
 					{{end}}
 				</tbody>
