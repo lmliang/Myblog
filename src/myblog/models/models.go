@@ -218,3 +218,18 @@ func GetTopicComments(tid string) ([]*Comment, error) {
 
 	return replys, err
 }
+
+func DeleteReply(rid string) error {
+	id, err := strconv.ParseInt(rid, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	r := &Comment{Id: id}
+
+	o := orm.NewOrm()
+
+	_, err = o.Delete(r)
+
+	return err
+}

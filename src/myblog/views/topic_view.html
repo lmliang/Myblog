@@ -13,7 +13,7 @@
 		</div>
 		<div class="container">
 			{{range .Replys}}
-			<h3>{{.Name}} <small>{{.Created}}</small></h3>
+			<h3>{{.Name}} <small>{{.Created}}</small> <small><a href="/reply/delete?id={{.Id}}">删除</a></small></h3>
 			{{.Content}}
 			{{end}}
 			<h3>本文回复</h3>

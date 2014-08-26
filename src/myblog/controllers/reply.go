@@ -21,3 +21,14 @@ func (this *ReplyController) Add() {
 
 	this.Redirect("/topic/view/"+tid, 302)
 }
+
+func (this *ReplyController) Delete() {
+	rid := this.Input().Get("id")
+
+	err := models.DeleteReply(rid)
+	if err != nil {
+		beego.Error(err)
+	}
+
+	this.Redirect("/", 302)
+}
