@@ -113,10 +113,27 @@ func AddTopic(title, content, category string) error {
 	topic := &Topic{Title: title, Content: content, Category: category, Created: time.Now(), Updated: time.Now()}
 
 	_, err := o.Insert(topic)
+	if err != nil {
+		return err
+	}
+
+	cate := &Category{Title: category}
+
+	qs := o.QueryTable("category")
+
+	err = qs.Filter("Title", category).One(cate)
+	if err != nil {
+		return err
+	}
+
+	cate.TopicCount++
+	cate.TopicTime = topic.Created
+
+	_, err = o.Update(cate)
 	return err
 }
 
-func GetAllTopics(isDesc bool) ([]*Topic, error) {
+func GetAllTopics(category string, isDesc bool) ([]*Topic, error) {
 	topics := make([]*Topic, 0)
 
 	o := orm.NewOrm()
@@ -125,6 +142,9 @@ func GetAllTopics(isDesc bool) ([]*Topic, error) {
 
 	var err error
 	if isDesc {
+		if len(category) > 0 {
+			qs = qs.Filter("category", category)
+		}
 		_, err = qs.OrderBy("-id").All(&topics)
 	} else {
 		_, err = qs.All(&topics)
@@ -184,7 +204,29 @@ func DeleteTopic(id string) error {
 
 	topic := &Topic{Id: tid}
 
+	err = o.Read(topic)
+	if err != nil {
+		return err
+	}
+
+	category := topic.Category
+
 	_, err = o.Delete(topic)
+
+	cate := &Category{Title: category}
+
+	qs := o.QueryTable("category")
+
+	err = qs.Filter("Title", category).One(cate)
+	if err != nil {
+		return err
+	}
+
+	if cate.TopicCount > 0 {
+		cate.TopicCount--
+	}
+
+	_, err = o.Update(cate)
 
 	return err
 }

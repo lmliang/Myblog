@@ -10,8 +10,11 @@ type MainController struct {
 }
 
 func (this *MainController) Get() {
+	curCate := this.Input().Get("category")
+
 	this.TplNames = "home.html"
 	this.Data["IsHome"] = true
 	this.Data["IsLogin"] = checkAccount(this.Ctx)
-	this.Data["Topics"], _ = models.GetAllTopics(true)
+	this.Data["Topics"], _ = models.GetAllTopics(curCate, true)
+	this.Data["Categorys"], _ = models.GetAllCategorys()
 }

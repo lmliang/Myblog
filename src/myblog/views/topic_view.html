@@ -12,8 +12,16 @@
 			{{.Topic.Content}}
 		</div>
 		<div class="container">
+			{{$tid := .Topic.Id}}
+			{{$isLogin := .IsLogin}}
 			{{range .Replys}}
-			<h3>{{.Name}} <small>{{.Created}}</small> <small><a href="/reply/delete?id={{.Id}}">删除</a></small></h3>
+			<h3>{{.Name}} 
+				<small>{{.Created}}
+					{{if $isLogin}}
+					<a href="/reply/delete?id={{.Id}}&tid={{$tid}}">删除</a>
+					{{end}}
+				</small>
+			</h3>
 			{{.Content}}
 			{{end}}
 			<h3>本文回复</h3>

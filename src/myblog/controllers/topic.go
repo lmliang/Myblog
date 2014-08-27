@@ -12,7 +12,7 @@ type TopicController struct {
 func (this *TopicController) Get() {
 	this.Data["IsLogin"] = checkAccount(this.Ctx)
 	this.Data["IsTopic"] = true
-	this.Data["Topics"], _ = models.GetAllTopics(false)
+	this.Data["Topics"], _ = models.GetAllTopics("", false)
 	this.TplNames = "topic.html"
 }
 
