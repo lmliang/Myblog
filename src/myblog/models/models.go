@@ -109,11 +109,12 @@ func DeleteCategory(id string) error {
 	return err
 }
 
-func AddTopic(title, content, category, labels string) error {
+func AddTopic(title, content, category, labels, attachment string) error {
 	o := orm.NewOrm()
 
 	labels = "$" + strings.Join(strings.Split(labels, " "), "#$") + "#"
-	topic := &Topic{Title: title, Content: content, Category: category, Created: time.Now(), Updated: time.Now(), Labels: labels}
+	topic := &Topic{Title: title, Content: content, Category: category, Created: time.Now(),
+		Updated: time.Now(), Labels: labels, Attachment: attachment}
 
 	_, err := o.Insert(topic)
 	if err != nil {
@@ -184,7 +185,7 @@ func GetTopic(id string) (*Topic, error) {
 	return t, err
 }
 
-func ModifyTopic(id, title, content, category, labels string) error {
+func ModifyTopic(id, title, content, category, labels, attachment string) error {
 	tid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return err
@@ -201,6 +202,7 @@ func ModifyTopic(id, title, content, category, labels string) error {
 		t.Category = category
 		t.Updated = time.Now()
 		t.Labels = labels
+		t.Attachment = attachment
 		_, err = o.Update(t)
 	}
 
